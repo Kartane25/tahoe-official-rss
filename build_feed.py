@@ -132,7 +132,18 @@ def make_feed():
             ET.SubElement(item, "title").text = title
             ET.SubElement(item, "link").text = url
             ET.SubElement(item, "guid", isPermaLink="true").text = url
-            ET.SubElement(item, "description").text = description[:700]
+            
+            if image:
+                image_url = urljoin(BASE, image)
+                html_description = (
+                    f'<p>{description[:700]}</p>'
+                    f'<img src="{image_url}" alt="Tahoe Knight Monsters news">'
+                )
+            else:
+                html_description = f'<p>{description[:700]}</p>'
+
+            ET.SubElement(item, "description").text = html_description
+
 
             if published:
                 ET.SubElement(item, "pubDate").text = format_datetime(published)
