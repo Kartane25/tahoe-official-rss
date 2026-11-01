@@ -138,12 +138,21 @@ def make_feed():
                 ET.SubElement(item, "pubDate").text = format_datetime(published)
 
 
+            
             if image:
                 image = urljoin(BASE, image)
+
                 ET.SubElement(item, "media:content", {
                     "url": image,
                     "medium": "image"
                 })
+
+                ET.SubElement(item, "enclosure", {
+                    "url": image,
+                    "length": "0",
+                    "type": "image/jpeg"
+                })
+
 
             count += 1
 
