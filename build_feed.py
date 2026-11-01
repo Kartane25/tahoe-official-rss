@@ -101,10 +101,23 @@ def make_feed():
                 re.IGNORECASE
             )
 
+            
             heading = soup.find("h1")
-            date_text = heading.find_previous(
-                string=date_pattern
-            ) if heading else None
+            date_text = (
+                heading.find_previous(
+                    string=lambda s: bool(
+                        s and re.search(
+                            r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+"
+                            r"(January|February|March|April|May|June|July|August|September|October|November|December)\s+"
+                            r"\d{1,2}(?:st|nd|rd|th)?",
+                            str(s),
+                            re.IGNORECASE
+                        )
+                    )
+                )
+                if heading else None
+            )
+  
 
             year_match = re.search(r"/news/(\d{4})/", url)
 
