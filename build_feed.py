@@ -66,10 +66,17 @@ def make_feed():
     for url in links[:15]:
         try:
             soup = get_soup(url)
+            
             heading = soup.find("h1")
-            title = meta(soup, "og:title") or (
-                heading.get_text(" ", strip=True) if heading else ""
+            date_text = (
+                heading.find_previous(
+                    string=lambda s: bool(
+                        s and date_pattern.search(str(s))
+                    )
+                )
+                if heading else None
             )
+
             image = meta(soup, "og:image")
             description = meta(soup, "og:description")
 
