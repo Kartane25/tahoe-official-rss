@@ -83,28 +83,44 @@ def make_feed():
             if not title:
                 continue
 
-            match = re.search(r"/news/(\d{4})/(\d{2})/", url)
-            if match:
-                year, month = map(int, match.groups())
-                published = datetime(year, month, 1, tzinfo=timezone.utc)
-            else:
-                published = datetime.now(timezone.utc)
+            
+            # Extract the actual publication date displayed above the article
+            published = None
+            date_pattern = re.compile(
+                r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+"
+                r"(January|February|March|April|May|June|July|August|"
+                r"September|October|November|December)\s+"
+                r"(\d{1,2})(?:st|nd|rd|th)?",
+                re.IGNORECASE
+            )
 
-            date_meta = meta(soup, "article:published_time")
-            if date_meta:
-                try:
-                    published = datetime.fromisoformat(
-                        date_meta.replace("Z", "+00:00")
-                    )
-                except ValueError:
-                    pass
+            heading = soup.find("h1")
+            date_text = heading.find_previous(
+                string=date_pattern
+            ) if heading else None
 
+            year_match = re.search(r"/news/(\d{4})/", url)
+
+            if date_text and year_match:
+                match = date_pattern.search(str(date_text))
+                if match:
+                    month_day = f"{match.group(2)} {match.group(3)}"
+                    year = year_match.group(1)
+                    published = datetime.strptime(
+                        f"{month_day} {year}", "%B %d %Y"
+                    ).replace(tzinfo=timezone.utc)
+
+
+            
             item = ET.SubElement(channel, "item")
             ET.SubElement(item, "title").text = title
             ET.SubElement(item, "link").text = url
             ET.SubElement(item, "guid", isPermaLink="true").text = url
             ET.SubElement(item, "description").text = description[:700]
-            ET.SubElement(item, "pubDate").text = format_datetime(published)
+
+            if published:
+                ET.SubElement(item, "pubDate").text = format_datetime(published)
+
 
             if image:
                 image = urljoin(BASE, image)
