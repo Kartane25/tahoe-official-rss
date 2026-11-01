@@ -67,14 +67,10 @@ def make_feed():
         try:
             soup = get_soup(url)
             
+            
             heading = soup.find("h1")
-            date_text = (
-                heading.find_previous(
-                    string=lambda s: bool(
-                        s and date_pattern.search(str(s))
-                    )
-                )
-                if heading else None
+            title = meta(soup, "og:title") or (
+                heading.get_text(" ", strip=True) if heading else ""
             )
 
             image = meta(soup, "og:image")
