@@ -134,7 +134,7 @@ def make_feed():
             ET.SubElement(item, "guid", isPermaLink="true").text = url
             
             if image:
-                image_url = "https://kartane25.github.io/tahoe-official-rss/tahoe-test.jpg"
+                image_url = urljoin(BASE, image)
                 html_description = (
                     f'<p>{description[:700]}</p>'
                     f'<img src="{image_url}" alt="Tahoe Knight Monsters news">'
