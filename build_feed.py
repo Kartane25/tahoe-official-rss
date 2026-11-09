@@ -18,9 +18,23 @@ session.headers.update({
 })
 
 def get_soup(url):
+    
     response = session.get(url, timeout=30)
+
+    print("Requested URL:", response.url)
+    print("HTTP status:", response.status_code)
+    print("Response headers:")
+    for key in ("Server", "Allow", "Via", "X-Cache",
+                "CF-Ray", "X-Sucuri-ID", "Content-Type"):
+        if key in response.headers:
+            print(f"  {key}: {response.headers[key]}")
+
+    if response.status_code != 200:
+        print("Response preview:", response.text[:500])
+
     response.raise_for_status()
     return BeautifulSoup(response.text, "html.parser")
+
 
 def meta(soup, key):
     tag = soup.find("meta", property=key)
